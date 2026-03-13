@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-container" style="min-height: 80vh; background: transparent;">
+    <div class="form-box" style="width: 100%; max-width: 520px; padding: 40px;">
+        <h2 style="color: var(--primary); margin-bottom: 20px;">Complete Payment</h2>
+
+        <div class="booking-summary glass" style="margin-bottom: 30px; padding: 15px; text-align: left;">
+            <p><strong>Movie:</strong> {{ booking.title }}</p>
+            <p><strong>Seats:</strong> {{ booking.seats }}</p>
+            <p style="font-size: 1.5rem; margin-bottom: 30px;">Total Amount: <span style="color: var(--gold);">₹{{
+                    booking.total_amount }}</span></p>
+        </div>
+
+        <form action="{{ url_for('process_payment', booking_id=booking.id) }}" method="POST">
+            <!-- Card Number -->
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 0.9rem; color: #aaa;">Card Number</label>
+                <div style="position: relative;">
+                    <input class="with-icon" type="text" name="card_number" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                    <i class="fas fa-credit-card icon"></i>
+                </div>
+            </div>
+
+            <!-- Name on Card -->
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 0.9rem; color: #aaa;">Name on Card</label>
+                <input type="text" name="card_name" placeholder="JOHN DOE" required>
+            </div>
+
+            <!-- Expiry & CVV -->
+            <div style="display: flex; gap: 20px;">
+                <div style="text-align: left; flex: 1;">
+                    <label style="font-size: 0.9rem; color: #aaa;">Expiry Date</label>
+                    <input type="text" name="expiry" placeholder="MM/YY" maxlength="5" required>
+                </div>
+                <div style="text-align: left; flex: 1;">
+                    <label style="font-size: 0.9rem; color: #aaa;">CVV</label>
+                    <input type="password" name="cvv" placeholder="123" maxlength="3" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; margin-top: 20px; font-size: 1.1rem;">
+                <i class="fas fa-lock"></i> Pay Now
+            </button>
+        </form>
+
+        <p style="margin-top: 20px; font-size: 0.8rem; color: #666;">
+            <i class="fas fa-shield-alt"></i> Payments are secure and encrypted.
+        </p>
+    </div>
+</div>
+
+<script>
+    // Simple format for card number
+    const cardInput = document.querySelector('input[name="card_number"]');
+    cardInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.replace(/(.{4})/g, '$1 ').trim();
+        e.target.value = value;
+    });
+
+    // Simple format for expiry
+    const expiryInput = document.querySelector('input[name="expiry"]');
+    expiryInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        e.target.value = value;
+    });
+</script>
+{% endblock %}

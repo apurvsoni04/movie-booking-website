@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="form-box glass">
+        <h2 style="margin-bottom: 30px;">Create Account</h2>
+        <form method="POST" action="{{ url_for('register') }}">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email Address" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 20px;">Register</button>
+        </form>
+        <p style="margin-top: 20px; color: #ccc;">Already have an account? <a href="{{ url_for('login') }}"
+                style="color: var(--primary);">Login</a></p>
+    </div>
+</div>
+{% endblock %}

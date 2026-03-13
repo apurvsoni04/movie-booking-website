@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="no-print" style="text-align: center; margin-top: 50px;">
+    <h1 style="color: #28a745;"><i class="fas fa-check-circle"></i> Booking Confirmed!</h1>
+    <p>Thank you for booking with CinePrime. Your ticket is ready below.</p>
+</div>
+
+<!-- Ticket Container -->
+<div id="ticket-printable" class="ticket-card">
+    <div class="ticket-header">
+        <div class="ticket-logo"><i class="fas fa-film"></i> CINEPRIME</div>
+        <div class="ticket-type">E-TICKET</div>
+    </div>
+
+    <div class="ticket-body">
+        <div class="ticket-info">
+            <div class="info-group">
+                <label>MOVIE</label>
+                <div class="value">{{ booking.title }}</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-group">
+                    <label>CUSTOMER NAME</label>
+                    <div class="value">{{ booking.user_name }}</div>
+                </div>
+                <div class="info-group">
+                    <label>DATE & TIME</label>
+                    <div class="value">{{ booking.show_time }}</div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-group">
+                    <label>BOOKING ID</label>
+                    <div class="value">#{{ booking.id }}</div>
+                </div>
+                <div class="info-group">
+                    <label>SEATS</label>
+                    <div class="value" style="color: var(--primary); font-weight: 600;">{{ booking.seats }}</div>
+                </div>
+                <div class="info-group">
+                    <label>Screen</label>
+                    <div class="value" style="color: var(--primary); font-weight: 600;">{{ booking.screen }}</div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-group">
+                    <label>TOTAL AMOUNT</label>
+                    <div class="value">₹{{ booking.total_amount }}</div>
+                </div>
+            </div>
+        </div>
+
+       <div class="ticket-stub">
+    <div class="qr-code">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Ticket12345"
+     alt="QR Code">
+    </div>
+    <div class="stub-info">
+        <p>SCAN AT ENTRY</p>
+        <small>Valid for one person per seat</small>
+    </div>
+</div>
+    </div>
+
+    <div class="ticket-footer">
+        Enjoy your movie! Please arrive 15 minutes before the show.
+    </div>
+</div>
+
+<div class="no-print" style="text-align: center; margin: 40px 0;">
+    <a href="{{ url_for('home') }}" class="btn" style="background: rgba(255,255,255,0.1);">Back to Home</a>
+    <button onclick="window.print()" class="btn" style="margin-left: 15px;"><i class="fas fa-print"></i> Print Ticket</button>
+    {# Allow user to cancel this booking if needed #}
+    {% if booking.status in ['Pending', 'Confirmed'] %}
+    <form method="post" action="{{ url_for('cancel_booking', booking_id=booking.id) }}" style="display:inline-block; margin-left:12px;" onsubmit="return confirm('Cancel this booking?');">
+        <button type="submit" class="btn" style="background: #dc3545;"><i class="fas fa-times"></i> Cancel Booking</button>
+    </form>
+    {% endif %}
+</div>
+
+<style>
+    /* Professional Ticket Styling */
+    .ticket-card {
+        background: white;
+        color: #222;
+        max-width: 700px;
+        margin: 40px auto;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .ticket-header {
+        background: #111;
+        color: white;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 3px solid var(--primary);
+    }
+
+    .ticket-logo {
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+    }
+
+    .ticket-logo i {
+        color: var(--primary);
+    }
+
+    .ticket-type {
+        background: var(--primary);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .ticket-body {
+        display: flex;
+        padding: 30px;
+        position: relative;
+    }
+
+    .ticket-info {
+        flex: 2;
+        border-right: 2px dashed #ddd;
+        padding-right: 30px;
+    }
+
+    .ticket-stub {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding-left: 30px;
+    }
+
+    .info-group {
+        margin-bottom: 20px;
+    }
+
+    .info-group label {
+        display: block;
+        font-size: 0.7rem;
+        color: #888;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .info-group .value {
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .info-row {
+        display: flex;
+        gap: 30px;
+    }
+
+    .qr-code {
+        margin-bottom: 15px;
+    }
+
+    .stub-info p {
+        font-weight: 600;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+
+    .stub-info small {
+        color: #888;
+        font-size: 0.7rem;
+    }
+
+    .ticket-footer {
+        background: #f8f9fa;
+        padding: 15px;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #666;
+        border-top: 1px solid #eee;
+    }
+
+    /* Print Specific Styles */
+    @media print {
+        body {
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .navbar,
+        .footer-distributed,
+        .no-print,
+        .flash-messages {
+            display: none !important;
+        }
+
+        .ticket-card {
+            margin: 0 !important;
+            box-shadow: none !important;
+            border: 1px solid #000;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+
+        .ticket-header {
+            background: black !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .ticket-type {
+            background: #e50914 !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .ticket-footer {
+            background: #eee !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+{% endblock %}

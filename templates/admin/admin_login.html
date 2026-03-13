@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - CinePrime</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Flash Messages (Copied from base) -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} glass">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="auth-container">
+        <div class="form-box glass" style="border: 1px solid var(--primary);">
+            <h2 style="margin-bottom: 30px; color: var(--primary);">Admin Portal</h2>
+            <form method="POST" action="{{ url_for('admin_login') }}">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn" style="width: 100%; margin-top: 20px;">Login</button>
+            </form>
+            <p style="margin-top: 20px;"><a href="{{ url_for('home') }}" style="color: #ccc;">Back to Site</a></p>
+        </div>
+    </div>
+
+</body>
+
+</html>

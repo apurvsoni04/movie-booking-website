@@ -1,0 +1,28 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block content %}
+<h2 style="margin-bottom: 30px;">Dashboard</h2>
+
+<div style="display: flex; gap: 30px; margin-bottom: 50px;">
+    <div class="stat-card glass" style="flex: 1;">
+        <h3>{{ movie_count }}</h3>
+        <p>Active Movies</p>
+    </div>
+    <div class="stat-card glass" style="flex: 1;">
+        <h3>{{ booking_count }}</h3>
+        <p>Total Bookings</p>
+    </div>
+    <div class="stat-card glass" style="flex: 1;">
+        <h3>₹{{ revenue }}</h3>
+        <p>Total Revenue</p>
+    </div>
+</div>
+
+<div class="glass" style="padding: 30px;">
+    <h3>Recent Actions</h3>
+    <p>Manage your movies and bookings using the navigation above.</p>
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('add_movie') }}" class="btn">Add New Movie</a>
+    </div>
+</div>
+{% endblock %}

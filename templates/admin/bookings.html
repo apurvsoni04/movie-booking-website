@@ -1,0 +1,36 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block content %}
+<div class="glass" style="max-width: 1000px; margin: 0 auto; padding: 40px;">
+    <h2>All Bookings</h2>
+
+    {% if bookings %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; color: white;">
+        <thead>
+            <tr style="background: rgba(255,255,255,0.1); text-align: left;">
+                <th style="padding: 15px;">ID</th>
+                <th style="padding: 15px;">User</th>
+                <th style="padding: 15px;">Movie</th>
+                <th style="padding: 15px;">Date</th>
+                <th style="padding: 15px;">Seats</th>
+                <th style="padding: 15px;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <td style="padding: 15px;">#{{ booking.id }}</td>
+                <td style="padding: 15px;">{{ booking.user_name }}</td>
+                <td style="padding: 15px;">{{ booking.title }}</td>
+                <td style="padding: 15px;">{{ booking.show_time.strftime('%d/%m/%y %H:%M') }}</td>
+                <td style="padding: 15px;">{{ booking.seats }}</td>
+                <td style="padding: 15px;">₹{{ booking.total_amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No bookings found.</p>
+    {% endif %}
+</div>
+{% endblock %}

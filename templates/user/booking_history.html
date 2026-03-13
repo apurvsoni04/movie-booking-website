@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass" style="max-width: 900px; margin: 50px auto; padding: 40px;">
+    <h2 style="margin-bottom: 30px;">My Bookings</h2>
+
+    {% if bookings %}
+    <div style="display: grid; gap: 20px;">
+        {% for booking in bookings %}
+        <div class="glass" style="padding: 20px; display: flex; align-items: center; background: rgba(0,0,0,0.3);">
+            {% set poster_url = booking.poster_image if booking.poster_image and
+            (booking.poster_image.startswith('http') or booking.poster_image.startswith('https')) else url_for('static',
+            filename='uploads/posters/' + booking.poster_image) if booking.poster_image else
+            'https://via.placeholder.com/300x450' %}
+            <img src="{{ poster_url }}"
+                style="width: 80px; height: 120px; object-fit: cover; border-radius: 5px; margin-right: 20px;"
+                onerror="this.src='https://via.placeholder.com/300x450'">
+            <div style="flex: 1;">
+                <h3 style="margin-bottom: 5px;">{{ booking.title }}</h3>
+                <p style="color: #aaa; font-size: 0.9rem;">
+                    {% if booking.show_time %}
+                    {{ booking.show_time.strftime('%d %b %Y, %I:%M %p') }}
+                    {% else %}
+                    Date not available
+                    {% endif %}
+                </p>
+                <p style="margin-top: 10px;"><strong>Seats:</strong> {{ booking.seats }}</p>
+                <p><strong>Total:</strong> ₹{{ booking.total_amount }}</p>
+            </div>
+            <div style="text-align: right;">
+                {% if booking.status == 'Confirmed' %}
+                <span class="btn" style="background: #28a745; cursor: default; font-size: 0.8rem; padding: 5px 15px;">{{ booking.status }}</span>
+                <br>
+                <a href="{{ url_for('booking_confirmation', booking_id=booking.id) }}" class="btn" style="margin-top:8px; padding:6px 12px; display:inline-block; background:#0d6efd;">View Ticket</a>
+                {% else %}
+                <span class="btn" style="background: #ffc107; color: black; cursor: default; font-size: 0.8rem; padding: 5px 15px;">{{ booking.status }}</span>
+                <br>
+                <a href="{{ url_for('payment', booking_id=booking.id) }}" style="color: var(--primary); font-size: 0.8rem; text-decoration: underline; display: inline-block; margin-top: 5px;">Complete Payment</a>
+                {% endif %}
+                <br>
+                {# Allow users to cancel Pending or Confirmed bookings #}
+                {% if booking.status in ['Pending', 'Confirmed'] %}
+                <form method="post" action="{{ url_for('cancel_booking', booking_id=booking.id) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                    <button type="submit" class="btn" style="background: #dc3545; border: none; color: white; margin-top: 8px; font-size: 0.8rem; padding: 6px 12px;">Cancel</button>
+                </form>
+                {% endif %}
+                <br>
+                <small style="color: #777;">ID: #{{ booking.id }}</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="text-align: center;">You haven't booked any tickets yet.</p>
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{{ url_for('home') }}" class="btn">Browse Movies</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CinePrime</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .admin-nav .logo {
+            color: white;
+        }
+
+        .admin-nav {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .dashboard-container {
+            padding: 100px 5%;
+        }
+
+        .stat-card {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar admin-nav glass">
+        <div class="logo"><i class="fas fa-user-shield"></i> Admin Panel</div>
+        <div class="nav-links">
+            <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('manage_movies') }}">Edit Movies</a>
+            <a href="{{ url_for('add_movie') }}">Add Movie</a>
+            <a href="{{ url_for('admin_bookings') }}">Bookings</a>
+            <a href="{{ url_for('home') }}" target="_blank">View Site</a>
+            <a href="{{ url_for('logout') }}" style="color: var(--primary);">Logout</a>
+        </div>
+    </nav>
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} glass">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="dashboard-container">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block content %}
+<div class="glass" style="max-width: 600px; margin: 0 auto; padding: 40px;">
+    <h2>Add Show for: {{ movie.title }}</h2>
+    <form method="POST">
+        <div style="margin: 20px 0;">
+            <label>Show Date & Time</label>
+            <input type="datetime-local" name="show_time" required
+                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <label>Screen</label>
+            <input type="text" name="screen" placeholder="Enter screen number or name" required
+                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
+        </div>
+
+        <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label>Silver Price (₹)</label>
+                <input type="number" step="0.01" name="price_silver" value="10.00" required
+                    style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
+            </div>
+            <div style="flex: 1;">
+                <label>Gold Price (₹)</label>
+                <input type="number" step="0.01" name="price_gold" value="15.00" required
+                    style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
+            </div>
+            <div style="flex: 1;">
+                <label>Platinum Price (₹)</label>
+                <input type="number" step="0.01" name="price_platinum" value="20.00" required
+                    style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
+            </div>
+        </div>
+
+        <button type="submit" class="btn">Save Show</button>
+    </form>
+</div>
+{% endblock %}

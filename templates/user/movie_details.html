@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 100px 5%;">
+    <div style="background: rgba(0,0,0,0.8); border-radius: 15px; overflow: hidden; display: flex; flex-wrap: wrap;">
+        <!-- Poster -->
+        <div style="flex: 1; min-width: 300px;">
+            {% set poster_url = movie.poster_image if movie.poster_image and (movie.poster_image.startswith('http') or
+            movie.poster_image.startswith('https')) else url_for('static', filename='uploads/posters/' +
+            movie.poster_image) if movie.poster_image else 'https://via.placeholder.com/300x450' %}
+            <img src="{{ poster_url }}" style="width: 100%; height: 100%; object-fit: cover;"
+                onerror="this.src='https://via.placeholder.com/300x450'">
+        </div>
+
+        <!-- Details -->
+        <div style="flex: 2; padding: 40px; color: white;">
+            <h1 style="font-size: 3rem; margin-bottom: 20px;">{{ movie.title }}</h1>
+            <p style="margin-bottom: 20px;">{{ movie.description }}</p>
+            <p><i class="fas fa-clock"></i> {{ movie.duration_minutes | format_duration }} | <i class="fas fa-film"></i>
+                {{
+                movie.genre }}</p>
+            <div style="margin: 20px 0;">
+                <i class="fas fa-star" style="color: gold;"></i> {{ movie.rating }}/10
+            </div>
+
+            <!-- Trailer -->
+            {% if movie.trailer_url %}
+            <div
+                style="margin-top: 30px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px;">
+                <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                    src="{{ movie.trailer_url | replace('watch?v=', 'embed/') }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Shows -->
+    <h2 style="margin: 50px 0 30px;">Available Shows</h2>
+
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        {% for show in shows %}
+        <div class="glass" style="padding: 20px; text-align: center; min-width: 200px;">
+            <h3>{{ show.show_time.strftime('%Y-%m-%d') }}</h3>
+            <h2 style="color: var(--primary);">{{ show.show_time.strftime('%H:%M') }}</h2>
+             <td>{{ show.screen }}</td>
+            <p>From ₹{{ show.price_silver }}</p>
+            <a href="{{ url_for('book_seats', show_id=show.id) }}" class="btn"
+                style="margin-top: 15px; display: inline-block;">Book Seats</a>
+        </div>
+        {% else %}
+        <p>No shows scheduled yet.</p>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
