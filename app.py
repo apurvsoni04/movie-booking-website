@@ -668,3 +668,283 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
 
 
+import pymysql
+pymysql.install_as_MySQLdb()
+
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_mysqldb import MySQL
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+
+import os
+from datetime import datetime, timedelta
+
+app = Flask(__name__)
+
+# ===============================
+# SECURITY
+# ===============================
+app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
+
+# ===============================
+# MYSQL CONFIG (RAILWAY READY)
+# ===============================
+app.config['MYSQL_HOST'] = os.environ.get("MYSQLHOST", "127.0.0.1")
+app.config['MYSQL_USER'] = os.environ.get("MYSQLUSER", "root")
+app.config['MYSQL_PASSWORD'] = os.environ.get("MYSQLPASSWORD", "")
+app.config['MYSQL_DB'] = os.environ.get("MYSQLDATABASE", "movie_booking")
+app.config['MYSQL_PORT'] = int(os.environ.get("MYSQLPORT", 3306))
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+# ===============================
+# FILE UPLOAD CONFIG
+# ===============================
+app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads', 'posters')
+app.config['ALLOWED_EXTENSIONS'] = {'png','jpg','jpeg','gif'}
+
+mysql = MySQL(app)
+
+# ===============================
+# HELPER FUNCTIONS
+# ===============================
+
+def allowed_file(filename):
+    return '.' in filename and \
+    filename.rsplit('.',1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+def is_logged_in():
+    return 'user_id' in session
+
+def is_admin_logged_in():
+    return 'admin_id' in session
+
+
+@app.template_filter('format_duration')
+def format_duration(minutes):
+
+    if not minutes:
+        return "0m"
+
+    h = minutes // 60
+    m = minutes % 60
+
+    if h > 0:
+        return f"{h}h {m}m"
+
+    return f"{m}m"
+
+
+# ===============================
+# HOME PAGE
+# ===============================
+@app.route('/')
+def home():
+
+    cursor = mysql.connection.cursor()
+
+    cursor.execute("SELECT * FROM movies")
+
+    movies = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('user/index.html', movies=movies)
+
+
+# ===============================
+# USER LOGIN
+# ===============================
+@app.route('/login', methods=['GET','POST'])
+def login():
+
+    if request.method == 'POST':
+
+        email = request.form['email']
+        password = request.form['password']
+
+        cursor = mysql.connection.cursor()
+
+        cursor.execute("SELECT * FROM users WHERE email=%s",(email,))
+        user = cursor.fetchone()
+
+        cursor.close()
+
+        if user and check_password_hash(user['password'], password):
+
+            session['user_id'] = user['id']
+            session['user_name'] = user['name']
+
+            flash("Login successful","success")
+
+            return redirect(url_for('home'))
+
+        else:
+            flash("Invalid email or password","danger")
+
+    return render_template("user/login.html")
+
+
+# ===============================
+# REGISTER
+# ===============================
+@app.route('/register', methods=['GET','POST'])
+def register():
+
+    if request.method == 'POST':
+
+        name = request.form['name']
+        email = request.form['email']
+        password = generate_password_hash(request.form['password'])
+
+        cursor = mysql.connection.cursor()
+
+        cursor.execute(
+        "INSERT INTO users(name,email,password) VALUES(%s,%s,%s)",
+        (name,email,password))
+
+        mysql.connection.commit()
+
+        cursor.close()
+
+        flash("Registration successful","success")
+
+        return redirect(url_for('login'))
+
+    return render_template("user/register.html")
+
+
+# ===============================
+# LOGOUT
+# ===============================
+@app.route('/logout')
+def logout():
+
+    session.clear()
+
+    flash("Logged out successfully","info")
+
+    return redirect(url_for('login'))
+
+
+# ===============================
+# ADMIN LOGIN
+# ===============================
+@app.route('/admin/login', methods=['GET','POST'])
+def admin_login():
+
+    if request.method == 'POST':
+
+        username = request.form['username']
+        password = request.form['password']
+
+        cursor = mysql.connection.cursor()
+
+        cursor.execute("SELECT * FROM admins WHERE username=%s",(username,))
+        admin = cursor.fetchone()
+
+        cursor.close()
+
+        if admin and check_password_hash(admin['password'], password):
+
+            session['admin_id'] = admin['id']
+            session['admin_name'] = admin['username']
+
+            return redirect(url_for('admin_dashboard'))
+
+        flash("Invalid admin credentials","danger")
+
+    return render_template("admin/admin_login.html")
+
+
+# ===============================
+# ADMIN DASHBOARD
+# ===============================
+@app.route('/admin/dashboard')
+def admin_dashboard():
+
+    if not is_admin_logged_in():
+        return redirect(url_for('admin_login'))
+
+    cursor = mysql.connection.cursor()
+
+    cursor.execute("SELECT COUNT(*) as total FROM movies")
+    movie_count = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) as total FROM bookings")
+    booking_count = cursor.fetchone()['total']
+
+    cursor.execute("SELECT SUM(total_amount) as revenue FROM bookings")
+    revenue = cursor.fetchone()['revenue'] or 0
+
+    cursor.close()
+
+    return render_template(
+    "admin/dashboard.html",
+    movie_count=movie_count,
+    booking_count=booking_count,
+    revenue=revenue)
+
+
+# ===============================
+# ROUTE DEBUG
+# ===============================
+@app.route('/__routes__')
+def routes():
+
+    route_list = []
+
+    for rule in app.url_map.iter_rules():
+        route_list.append(f"{rule.endpoint} -> {rule}")
+
+    return "<br>".join(route_list)
+
+
+# ===============================
+# ABOUT PAGE
+# ===============================
+@app.route('/about')
+def about():
+
+    return render_template("about.html")
+
+
+# ===============================
+# PRICING PAGE
+# ===============================
+@app.route('/pricing')
+def pricing():
+
+    cursor = mysql.connection.cursor()
+
+    cursor.execute("""
+    SELECT m.title,
+           s.price_silver,
+           s.price_gold,
+           s.price_platinum
+    FROM shows s
+    JOIN movies m ON s.movie_id = m.id
+    """)
+
+    prices = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template("pricing.html", prices=prices)
+
+
+# ===============================
+# RUN SERVER (RAILWAY SUPPORT)
+# ===============================
+if __name__ == "__main__":
+
+    port = int(os.environ.get("PORT", 5000))
+
+    print("Starting Flask server on port:", port)
+
+    print("Registered routes:")
+    for rule in app.url_map.iter_rules():
+        print(rule.endpoint, "->", rule)
+
+    app.run(host="0.0.0.0", port=port)
+
+
