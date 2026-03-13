@@ -3,3 +3,5 @@ flask-mysqldb
 werkzeug
 python-dotenv
 PyMySQL
+gunicorn
+mysql-connector-python
