@@ -9,13 +9,20 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
-# Configuration
-app.secret_key = 'your_secret_key_here' # Change this in production
-app.config['MYSQL_HOST'] = '127.0.0.1'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '' # Default XAMPP password is empty
-app.config['MYSQL_DB'] = 'movie_booking'
+import os
+
+# Secret key
+app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
+
+# MySQL configuration (Railway + Local compatible)
+app.config['MYSQL_HOST'] = os.environ.get("MYSQLHOST", "mysql.railway.internal")
+app.config['MYSQL_USER'] = os.environ.get("MYSQLUSER", "root")
+app.config['MYSQL_PASSWORD'] = os.environ.get("MYSQLPASSWORD", "kDcRVliHneMcCVQOSruWChRnYQfJIYvU")
+app.config['MYSQL_DB'] = os.environ.get("MYSQLDATABASE", "railway")
+app.config['MYSQL_PORT'] = int(os.environ.get("MYSQLPORT", 3306))
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+# File upload configuration
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads', 'posters')
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -946,5 +953,6 @@ if __name__ == "__main__":
         print(rule.endpoint, "->", rule)
 
     app.run(host="0.0.0.0", port=port)
+
 
 
